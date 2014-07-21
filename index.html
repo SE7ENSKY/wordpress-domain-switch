@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf8">
+		<title>wordpress switch domain</title>
+	</head>
+	<body>
+		<form id="switch-form">
+			<p>
+				<label>
+					File:<br>
+					<input type="file" name="dump">
+				</label>
+			</p>
+			<p>
+				<label>
+					From domain:<br>
+					<input type="text" name="from">
+				</label>
+			</p>
+			<p>
+				<label>
+					To domain:<br>
+					<input type="text" name="to">
+				</label>
+			</p>
+			<p class="submits">
+				<button>Switch!</button>
+			</p>
+		</form>
+
+		<script>
+			var fixPhpSerialization = function(s) {
+				return s.replace(/s:(\d+):"([^"]*)";/g, function(str, charCount, chars, offset, s) {
+					return "s:" + chars.length + ":\"" + chars + "\";"
+				})
+			}
+
+			var makeMagic = function(sql, from, to) {
+				var replaced = sql.split(from).join(to)
+				var fixed = fixPhpSerialization(replaced)
+				document.body.innerText = fixed
+			}
+
+			var form = document.getElementById("switch-form")
+			form.addEventListener("submit", function(e) {
+				if (form.dump.files.length > 0) {
+					var file = form.dump.files[0]
+					var reader = new FileReader()
+					reader.onloadend = function(evt) {
+						if (evt.target.readyState == FileReader.DONE) {
+							var fileContent = evt.target.result
+							var from = form.from.value
+							var to = form.to.value
+							makeMagic(fileContent, from, to)
+						}
+					}
+					reader.readAsText(file)
+				}
+				e.preventDefault()
+				return false
+			})
+		</script>
+	</body>
+</html>
